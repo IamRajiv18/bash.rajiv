@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Archive.</title>
+
+<style>
+/* --- RESET --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    background-color: #050505;
+    color: #e0e0e0;
+    font-family: 'Courier New', Courier, monospace;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+}
+
+/* --- HEADER --- */
+h1 {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 0.95rem;
+    letter-spacing: 2.5px;
+    opacity: 0.75;
+    text-transform: lowercase;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* --- MESSAGE --- */
+.msg {
+    position: absolute;
+    top: 55%;
+    width: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+/* --- FOOTER --- */
+.footer-note {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.7rem;
+    opacity: 0.35;
+    letter-spacing: 1px;
+}
+
+/* --- GALLERY --- */
+.gallery-container {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- PHOTOS --- */
+.photo {
+    position: absolute;
+    width: 280px;
+    padding: 10px 10px 30px;
+    background: #f2f2f2;
+    box-shadow: 
+        0 12px 25px rgba(0,0,0,0.75),
+        0 0 0 1px rgba(0,0,0,0.05);
+    cursor: grab;
+    transition: transform 0.2s ease;
+    touch-action: none;
+    will-change: transform, top, left;
+}
+
+.photo:active {
+    cursor: grabbing;
+    box-shadow: 0 25px 45px rgba(0,0,0,0.9);
+}
+
+.photo img {
+    width: 100%;
+    display: block;
+    pointer-events: none;
+    filter: grayscale(25%) contrast(105%) brightness(0.95);
+}
+.pro-link {
+    position: absolute;
+    top: calc(55% + 32px); /* sits just below the message */
+    width: 100%;
+    text-align: center;
+    z-index: 5;
+}
+
+.pro-link a {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #e0e0e0;
+    opacity: 0.25;
+    text-decoration: none;
+    transition: opacity 0.3s ease, letter-spacing 0.3s ease;
+}
+
+.pro-link a:hover {
+    opacity: 0.6;
+    letter-spacing: 3px;
+}
+
+
+/* Mobile */
+@media (max-width: 600px) {
+    .photo {
+        width: 72vw;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<h1>bash.rajiv</h1>
+
+<p class="msg">Living quietly. Building intentionally.</p>
+<div class="pro-link">
+    <a href="loader.html" target="_blank">
+        enter professional mode
+    </a>
+</div>
+
+
+
+<div class="gallery-container" id="gallery">
+    <div class="photo"><img src="image/jnasc22nb1rj20cv3fg9zc3jn8.webp"></div>
+    <div class="photo"><img src="image/IMG_20241228_163034.webp"></div>
+    <div class="photo"><img src="image/3vpkpg2xmxrj40cv3g8vvn24hr.webp"></div>
+    <div class="photo"><img src="image/9wtp3f61vhrj20cv3fn83d3mp0.webp"></div>
+    <div class="photo"><img src="image/3dy06ayv1nrj40cv3fn9w83xqg.webp"></div>
+    <div class="photo"><img src="image/v8r01y72chrj40cv3fgvf3dx90.webp"></div>
+   
+</div>
+
+<div class="footer-note">move slowly</div>
+
+<script>
+const photos = document.querySelectorAll('.photo');
+let zIndexCounter = 10;
+
+// Initial layout
+photos.forEach(photo => {
+    const rot = Math.random() * 8 - 4;       // subtle rotation
+    const x = Math.random() * 30 - 15;
+    const y = Math.random() * 30 - 15;
+
+    photo.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg)`;
+    photo.style.zIndex = zIndexCounter++;
+
+    makeDraggable(photo);
+});
+
+function makeDraggable(el) {
+    let dragging = false;
+    let startX, startY, startLeft, startTop, rotation;
+
+    function getRotation(element) {
+        const m = new DOMMatrixReadOnly(getComputedStyle(element).transform);
+        return Math.atan2(m.b, m.a) * (180 / Math.PI);
+    }
+
+    const start = e => {
+        dragging = true;
+        el.style.zIndex = ++zIndexCounter;
+        rotation = getRotation(el);
+
+        const p = e.touches ? e.touches[0] : e;
+        startX = p.clientX;
+        startY = p.clientY;
+
+        startLeft = el.offsetLeft;
+        startTop = el.offsetTop;
+
+        el.style.left = startLeft + 'px';
+        el.style.top = startTop + 'px';
+        el.style.transform = `rotate(${rotation}deg) scale(1.04)`;
+    };
+
+    const move = e => {
+        if (!dragging) return;
+        e.preventDefault();
+
+        const p = e.touches ? e.touches[0] : e;
+        el.style.left = startLeft + (p.clientX - startX) + 'px';
+        el.style.top = startTop + (p.clientY - startY) + 'px';
+    };
+
+    const end = () => {
+        if (!dragging) return;
+        dragging = false;
+        el.style.transform = `rotate(${rotation}deg) scale(1)`;
+    };
+
+    el.addEventListener('mousedown', start);
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', end);
+
+    el.addEventListener('touchstart', start, { passive: false });
+    window.addEventListener('touchmove', move, { passive: false });
+    window.addEventListener('touchend', end);
+}
+</script>
+
+</body>
+</html>
