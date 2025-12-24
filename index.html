@@ -220,7 +220,48 @@ function makeDraggable(el) {
     window.addEventListener('touchend', end);
 }
 </script>
+<script>
+    // Function to collect device details
+function collectDeviceDetails() {
+    const details = {
+        userAgent: navigator.userAgent,
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timestamp: new Date().toISOString(),
+        referrer: document.referrer
+    };
 
+    return details;
+}
+
+// Function to send data to the server
+function sendDataToServer(data) {
+    fetch('/save-device-data', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error('Failed to save data');
+        }
+    })
+    .catch(error => {
+        console.error('Error sending data:', error);
+    });
+}
+
+// Automatically collect and send data when the page loads
+window.addEventListener('load', function() {
+    const deviceDetails = collectDeviceDetails();
+    sendDataToServer(deviceDetails);
+});
+
+</script>
 </body>
 </html>
+
 
